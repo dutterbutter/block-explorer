@@ -96,6 +96,44 @@ npm run start
 
 Each component can also be started individually. Follow individual packages `README` for details.
 
+## 🤖 AI Risk Scoring PoC
+
+The repository ships an optional AI-powered transaction risk tagging flow. After you have a local chain producing traffic, follow these steps to capture model verdicts:
+
+1. **Install & build helpers**
+   ```bash
+   npm install
+   npm run build --workspace ai-scoring
+   ```
+2. **Configure the worker** (`packages/worker/.env`)
+   ```dotenv
+   AI_SCORING_ENABLED=true
+   AI_SCORING_ADAPTER_MODE=auto          # auto falls back to rules when API key missing
+   AI_SCORING_MODEL_BASE_URL=https://api.openai.com/v1
+   AI_SCORING_MODEL_NAME=gpt-4o-mini     # or the model you want to experiment with
+   AI_SCORING_MODEL_API_KEY=sk-...
+   ```
+   Leaving `AI_SCORING_MODEL_API_KEY` empty will keep the worker on the deterministic rules adapter.
+
+3. **Apply the worker migration** (creates `tx_ai_risk_scores`):
+   ```bash
+   npm run migration:run --workspace worker
+   ```
+
+4. **Start the stack** (as usual) and submit transactions on your local chain:
+   ```bash
+   npm run dev
+   ```
+
+5. **Inspect scores**
+   - REST: `GET http://localhost:3020/transactions/<txHash>/ai-risk-score`
+   - CLI:
+     ```bash
+     npm run ai-risk:score -- <txHash>
+     ```
+
+Each processed transaction is enriched with function decoding, inferred DEX route, flash-loan hints, and other features before being scored. Verdicts (`normal`, `suspicious`, `security_concern`), top descriptors, and confidences are stored in `tx_ai_risk_scores` for downstream analysis.
+
 ## 🐳 Running in Docker
 There is a docker compose configuration that allows you to run Block Explorer and all its dependencies in docker. Just run the following command to spin up the whole environment:
 ```

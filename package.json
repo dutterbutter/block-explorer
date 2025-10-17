@@ -21,7 +21,8 @@
     "start": "lerna run start",
     "db:create": "lerna run db:create",
     "db:drop": "lerna run db:drop",
-    "hyperchain:configure": "ts-node scripts/setup-hyperchain-config"
+    "hyperchain:configure": "ts-node scripts/setup-hyperchain-config",
+    "ai-risk:score": "ts-node scripts/get-ai-risk-score.ts"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.1.2",

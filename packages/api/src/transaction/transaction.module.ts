@@ -10,11 +10,12 @@ import { TransferModule } from "../transfer/transfer.module";
 import { CounterModule } from "../counter/counter.module";
 import { LogModule } from "../log/log.module";
 import { Log } from "../log/log.entity";
+import { TxAiRiskScore } from "./entities/txAiRiskScore.entity";
 import { Block } from "../block/block.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Transaction, AddressTransaction, TransactionReceipt, Block, Log]),
+    TypeOrmModule.forFeature([Transaction, AddressTransaction, TransactionReceipt, Block, Log, TxAiRiskScore]),
     TransferModule,
     LogModule,
     CounterModule,

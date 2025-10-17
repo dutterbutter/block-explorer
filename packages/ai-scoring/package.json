@@ -1,0 +1,15 @@
+{
+  "name": "ai-scoring",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "src/index.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "test": "echo \"No tests yet\""
+  }
+}

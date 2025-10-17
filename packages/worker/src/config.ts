@@ -41,6 +41,13 @@ export default () => {
     BASE_TOKEN_L1_ADDRESS,
     BASE_TOKEN_ICON_URL,
     BASE_TOKEN_NAME,
+    AI_SCORING_ENABLED,
+    AI_SCORING_FEATURE_VERSION,
+    AI_SCORING_ADAPTER_MODE,
+    AI_SCORING_MODEL_BASE_URL,
+    AI_SCORING_MODEL_NAME,
+    AI_SCORING_MODEL_API_KEY,
+    AI_SCORING_MODEL_ORG,
   } = process.env;
 
   return {
@@ -114,6 +121,17 @@ export default () => {
     healthChecks: {
       rpcHealthCheckTimeoutMs: parseInt(RPC_HEALTH_CHECK_TIMEOUT_MS, 10) || 20_000,
       dbHealthCheckTimeoutMs: parseInt(DB_HEALTH_CHECK_TIMEOUT_MS, 10) || 20_000,
+    },
+    aiScoring: {
+      enabled: AI_SCORING_ENABLED === "true",
+      featureVersion: AI_SCORING_FEATURE_VERSION || "tx-risk-features/poc-v1",
+      adapterMode: (AI_SCORING_ADAPTER_MODE as "auto" | "external" | "offline") || "auto",
+      model: {
+        baseUrl: AI_SCORING_MODEL_BASE_URL || "https://api.openai.com/v1",
+        name: AI_SCORING_MODEL_NAME || "gpt-4o-mini",
+        apiKey: AI_SCORING_MODEL_API_KEY,
+        organization: AI_SCORING_MODEL_ORG,
+      },
     },
   };
 };

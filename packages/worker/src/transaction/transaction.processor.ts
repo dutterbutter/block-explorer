@@ -15,6 +15,7 @@ import { TransactionData, BlockInfo } from "../dataFetcher/types";
 import { ConfigService } from "@nestjs/config";
 import { utils } from "zksync-ethers";
 import { unixTimeToDate } from "../utils/date";
+import { AiRiskScoringService } from "../ai-risk/aiRiskScoring.service";
 
 @Injectable()
 export class TransactionProcessor {
@@ -28,6 +29,7 @@ export class TransactionProcessor {
     private readonly addressRepository: AddressRepository,
     private readonly tokenRepository: TokenRepository,
     private readonly configService: ConfigService,
+    private readonly aiRiskScoringService: AiRiskScoringService,
     @InjectMetric(TRANSACTION_PROCESSING_DURATION_METRIC_NAME)
     private readonly transactionProcessingDurationMetric: Histogram
   ) {
@@ -135,6 +137,8 @@ export class TransactionProcessor {
         }
       })
     );
+
+    await this.aiRiskScoringService.scoreTransaction(block, transactionData);
 
     stopTransactionProcessingMeasuring();
   }

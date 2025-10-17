@@ -12,6 +12,7 @@ import { Log } from "../log/log.entity";
 import { hexTransformer } from "../common/transformers/hex.transformer";
 import { prividium } from "../config/featureFlags";
 import { zeroPadValue } from "ethers";
+import { TxAiRiskScore } from "./entities/txAiRiskScore.entity";
 
 export interface FilterTransactionsOptions {
   blockNumber?: number;
@@ -40,7 +41,9 @@ export class TransactionService {
     private readonly blockRepository: Repository<Block>,
     private readonly counterService: CounterService,
     @InjectRepository(Log)
-    private readonly logRepository: Repository<Log>
+    private readonly logRepository: Repository<Log>,
+    @InjectRepository(TxAiRiskScore)
+    private readonly txAiRiskScoreRepository: Repository<TxAiRiskScore>
   ) {}
 
   public async findOne(hash: string): Promise<Transaction> {
@@ -54,6 +57,10 @@ export class TransactionService {
 
   public async exists(hash: string): Promise<boolean> {
     return (await this.transactionRepository.findOne({ where: { hash }, select: { hash: true } })) != null;
+  }
+
+  public async getAiRiskScore(hash: string): Promise<TxAiRiskScore | null> {
+    return await this.txAiRiskScoreRepository.findOne({ where: { txHash: hash } });
   }
 
   public async findAll(

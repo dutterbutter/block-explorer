@@ -30,6 +30,7 @@ import {
   AddressTransferRepository,
   LogRepository,
   BalanceRepository,
+  TxAiRiskScoreRepository,
 } from "./repositories";
 import {
   Block,
@@ -42,6 +43,7 @@ import {
   Transfer,
   AddressTransfer,
   Balance,
+  TxAiRiskScore,
 } from "./entities";
 import { typeOrmModuleOptions } from "./typeorm.config";
 import { JsonRpcProviderModule } from "./rpcProvider/jsonRpcProvider.module";
@@ -51,6 +53,7 @@ import { DbMetricsService } from "./dbMetrics.service";
 import { UnitOfWorkModule } from "./unitOfWork";
 import { DataFetcherService } from "./dataFetcher/dataFetcher.service";
 import { SystemContractService } from "./contract/systemContract.service";
+import { AiRiskScoringService } from "./ai-risk/aiRiskScoring.service";
 
 @Module({
   imports: [
@@ -78,6 +81,7 @@ import { SystemContractService } from "./contract/systemContract.service";
       AddressTransfer,
       Transfer,
       Balance,
+      TxAiRiskScore,
     ]),
     EventEmitterModule.forRoot(),
     JsonRpcProviderModule.forRoot(),
@@ -118,6 +122,7 @@ import { SystemContractService } from "./contract/systemContract.service";
     AddressTransferRepository,
     BalanceRepository,
     LogRepository,
+    TxAiRiskScoreRepository,
     BlocksRevertService,
     BlockStatusService,
     BlockProcessor,
@@ -128,6 +133,7 @@ import { SystemContractService } from "./contract/systemContract.service";
     RetryDelayProvider,
     DbMetricsService,
     SystemContractService,
+    AiRiskScoringService,
   ],
 })
 export class AppModule {}

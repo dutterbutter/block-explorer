@@ -22,6 +22,8 @@ import { ParseTransactionHashPipe, TX_HASH_REGEX_PATTERN } from "../common/pipes
 import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
 import { User, UserParam } from "../user/user.decorator";
+import { AiRiskScoreDto } from "./dtos/aiRiskScore.dto";
+import { TxAiRiskScore } from "./entities/txAiRiskScore.entity";
 
 const entityName = "transactions";
 
@@ -160,5 +162,53 @@ export class TransactionController {
         route: `${entityName}/${transactionHash}/logs`,
       }
     );
+  }
+
+  @Get(":transactionHash/ai-risk-score")
+  @ApiParam({
+    name: "transactionHash",
+    type: String,
+    schema: { pattern: TX_HASH_REGEX_PATTERN },
+    example: constants.txHash,
+    description: "Valid transaction hash",
+  })
+  @ApiOkResponse({ description: "AI risk score for the transaction", type: AiRiskScoreDto })
+  @ApiNotFoundResponse({ description: "AI score for the specified hash does not exist" })
+  public async getTransactionAiRiskScore(
+    @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string
+  ): Promise<AiRiskScoreDto> {
+    const score = await this.transactionService.getAiRiskScore(transactionHash);
+    if (!score) {
+      throw new NotFoundException();
+    }
+    return this.mapScoreToDto(score);
+  }
+
+  private mapScoreToDto(score: TxAiRiskScore): AiRiskScoreDto {
+    const descriptorsRaw = Array.isArray(score.descriptors) ? score.descriptors : [];
+    const descriptors = descriptorsRaw.map((descriptor: any) => ({
+      id: descriptor?.id,
+      label: descriptor?.label,
+      severity: descriptor?.severity,
+      severityScore: descriptor?.severityScore ?? descriptor?.severity_score ?? 0,
+      confidence: descriptor?.confidence ?? 0,
+      why: descriptor?.why ?? null,
+    }));
+
+    return {
+      txHash: score.txHash,
+      requestHash: score.requestHash,
+      featureVersion: score.featureVersion,
+      normalizerVersion: score.normalizerVersion,
+      modelName: score.modelName,
+      modelVersion: score.modelVersion,
+      verdict: score.verdict,
+      confidenceOverall: score.confidenceOverall ?? null,
+      descriptors,
+      status: score.status,
+      error: score.error ?? null,
+      requestedAt: score.requestedAt,
+      receivedAt: score.receivedAt ?? null,
+    };
   }
 }
