@@ -8,6 +8,8 @@ import useTransaction, { getTransferNetworkOrigin } from "@/composables/useTrans
 
 import type { Context } from "@/composables/useContext";
 
+import { ISOStringFromUnixTimestamp } from "@/utils/helpers";
+
 const hash = "0x011b4d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bce";
 const hashPaidByPaymaster = "0x111b4d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bce";
 
@@ -449,6 +451,7 @@ describe("useTransaction:", () => {
         isL1Originated: false,
         nonce: 24,
         receivedAt: "2023-02-28T08:42:08.198Z",
+        blockTimestamp: "2023-02-28T08:42:08.198Z",
         status: "verified",
         error: null,
         revertReason: null,
@@ -589,6 +592,8 @@ describe("useTransaction:", () => {
     });
     describe("when transaction request fails with not found error", () => {
       it("fetches transaction data directly from blockchain", async () => {
+        const blockTimestampSeconds = 1677574808;
+        const blockTimestampISO = ISOStringFromUnixTimestamp(blockTimestampSeconds);
         const provider = {
           getTransaction: vi.fn().mockResolvedValue({
             hash: "0x00000d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bcf",
@@ -611,6 +616,7 @@ describe("useTransaction:", () => {
             gasPrice: "4000",
             contractAddress: null,
           }),
+          getBlock: vi.fn().mockResolvedValue({ timestamp: blockTimestampSeconds }),
         };
         const { transaction, isRequestFailed, getByHash } = useTransaction({
           currentNetwork: {
@@ -629,6 +635,7 @@ describe("useTransaction:", () => {
         expect(provider.getTransactionReceipt).toBeCalledWith(
           "0x00000d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bcf"
         );
+        expect(provider.getBlock).toBeCalledWith(1162235);
 
         expect(isRequestFailed.value).toBe(false);
         expect(transaction.value).toEqual({
@@ -657,7 +664,8 @@ describe("useTransaction:", () => {
           isEvmLike: false,
           isL1Originated: false,
           nonce: 24,
-          receivedAt: "",
+          receivedAt: blockTimestampISO,
+          blockTimestamp: blockTimestampISO,
           status: "indexing",
           logs: [
             {
